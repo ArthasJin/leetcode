@@ -21,3 +21,17 @@ public:
     }
 };
 
+// shorter solution
+class Solution {
+public:
+    bool isPalindrome(int x) {
+        if (x < 0) return false;
+        int p = pow(10, (int)log10(x));
+        while(x > 0 && x / p == x % 10) {
+            x -= x / p * p;
+            x /= 10;
+            p /= 100;
+        }
+        return x == 0;
+    }
+};

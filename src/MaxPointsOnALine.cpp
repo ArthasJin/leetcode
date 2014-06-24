@@ -10,43 +10,34 @@
 class Solution {
 public:
     int maxPoints(vector<Point> &points) {
-        if (points.size() == 0) {
-            return 0;
-        }
-        if (points.size() == 1) {
-            return 1;
-        }
-        int res = 0;
-        unordered_map<double, int> m;
-        for (int i = 0; i < points.size(); ++i) {
-            m.clear();
-            double slope;
-            int same = 1;
-            for (int j = i + 1; j < points.size(); ++j) {
-                if (isSame(points[i], points[j])) {
-                    same++;
-                    continue;
-                } else {
-                    slope = getSlope(points[i], points[j]);
-                    if (m.find(slope) != m.end()) {
-                        m[slope]++;
+        if (points.size() > 0) {
+            int maxNum = 0;
+            unordered_map<double, int> slope;
+            for (int i = 0; i < points.size(); ++i) {
+                slope.clear();
+                int samePoint = 1;
+                for (int j = i + 1; j < points.size(); ++j) {
+                    if (isSame(points[i], points[j])) {
+                        samePoint++;
                     } else {
-                        m[slope] = 1;
+                        double s = getSlope(points[i], points[j]);
+                        slope[s] += 1;
                     }
                 }
+                maxNum = max(maxNum, samePoint);
+                for (unordered_map<double, int>::iterator iter = slope.begin(); iter != slope.end(); ++iter) {
+                    maxNum = max(maxNum, samePoint + iter->second);
+                }
             }
-            res = max(same, res);
-            for (unordered_map<double, int>::iterator iter = m.begin(); iter != m.end(); ++iter) {
-                res = max(iter->second + same, res);
-            }
+            return maxNum;
         }
-        return res;
+        return 0;
     }
 private:
-    bool isSame(Point& p1, Point& p2) {
+    bool isSame(Point &p1, Point &p2) {
         return p1.x == p2.x && p1.y == p2.y;
     }
-    double getSlope(Point& p1, Point& p2) {
+    double getSlope(Point &p1, Point &p2) {
         if (p1.x == p2.x) {
             return INT_MAX;
         }
