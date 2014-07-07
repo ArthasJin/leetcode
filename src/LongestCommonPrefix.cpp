@@ -6,6 +6,10 @@ public:
             for (int i = 0; i < strs[0].length(); ++i) {
                 bool isPrefix = true;
                 for (int j = 1; j < strs.size(); ++j) {
+                    if (strs[j].length() < i + 1) {
+                        isPrefix = false;
+                        break;
+                    }
                     if (strs[0][i] != strs[j][i]) {
                         isPrefix = false;
                         break;

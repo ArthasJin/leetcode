@@ -15,3 +15,23 @@ public:
     }
 };
 
+// more elegant solution
+class Solution {
+public:
+    double pow(double x, int n) {
+        if (n == 0) {
+            return 1;
+        }
+        if (n & 0x01) {
+            double p = pow(x, n / 2);
+            if (n > 0) {
+                return p * p * x;
+            } else {
+                return p * p * 1 / x;
+            }
+        }
+        double p = pow(x, n / 2);
+        return p * p;
+    }
+};
+

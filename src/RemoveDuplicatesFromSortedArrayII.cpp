@@ -10,8 +10,6 @@ public:
                 } else if (A[cur] == A[i] && count < 1) {
                     A[++cur] = A[i];
                     count++;
-                } else if (A[cur] == A[i] && count == 1) {
-                    continue;
                 }
             }
             return cur + 1;

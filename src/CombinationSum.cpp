@@ -4,27 +4,29 @@ public:
         sort(candidates.begin(), candidates.end());
         vector<int> selected(candidates.size());
         combine(candidates, 0, target, selected);
+        vector<vector<int> > res;
+        res.assign(s.begin(), s.end());
         return res;
     }
 private:
-    vector<vector<int> > res;
-    void combine(vector<int> &candidates, int index, int target, vector<int> &selected) {
-        if (index == candidates.size()) {
+    set<vector<int> > s;
+    void combine(vector<int> &num, int index, int target, vector<int> &selected) {
+        if (index == num.size()) {
             if (target == 0) {
                 vector<int> entry;
                 for (int i = 0; i < selected.size(); ++i) {
                     for (int j = 0; j < selected[i]; ++j) {
-                        entry.push_back(candidates[i]);
+                        entry.push_back(num[i]);
                     }
                 }
-                res.push_back(entry);
+                s.insert(entry);
             }
             return;
         }
-        int num = target / candidates[index];
-        for (int i = 0; i < num + 1; ++i) {
+        int n = target / num[index];
+        for (int i = 0; i < n + 1; ++i) {
             selected[index] = i;
-            combine(candidates, index + 1, target - candidates[index] * i, selected);
+            combine(num, index + 1, target - i * num[index], selected);
         }
     }
 };
