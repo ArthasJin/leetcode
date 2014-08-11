@@ -25,3 +25,18 @@ public:
     }
 };
 
+// more elegant solution
+class Solution {
+public:
+    int maxDepth(TreeNode *root) {
+        return depth(root);
+    }
+private:
+    int depth(TreeNode *root) {
+        if (root) {
+            return 1 + max(depth(root->left), depth(root->right));
+        }
+        return 0;
+    }
+};
+

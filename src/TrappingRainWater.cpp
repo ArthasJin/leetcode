@@ -1,3 +1,4 @@
+// run time O(n) space O(n)
 class Solution {
 public:
     int trap(int A[], int n) {
@@ -16,6 +17,40 @@ public:
             for (int i = 0; i < n; ++i) {
                 if (A[i] < min(left[i], right[i])) {
                     res += min(left[i], right[i]) - A[i];
+                }
+            }
+            return res;
+        }
+        return 0;
+    }
+};
+
+// run time O(n) space O(1)
+class Solution {
+public:
+    int trap(int A[], int n) {
+        if (n > 1) {
+            int maxIndex = 0;
+            for (int i = 1; i < n; ++i) {
+                if (A[maxIndex] < A[i]) {
+                    maxIndex = i;
+                }
+            }
+            int maxValue = 0;
+            int res = 0;
+            for (int i = 0; i < maxIndex; ++i) {
+                if (A[i] < maxValue) {
+                    res += maxValue - A[i];
+                } else {
+                    maxValue = A[i];
+                }
+            }
+            maxValue = 0;
+            for (int i = n - 1; i > maxIndex; --i) {
+                if (A[i] < maxValue) {
+                    res += maxValue - A[i];
+                } else {
+                    maxValue = A[i];
                 }
             }
             return res;

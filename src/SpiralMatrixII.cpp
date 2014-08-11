@@ -24,3 +24,34 @@ public:
     }
 };
 
+// more tuitive solution
+class Solution {
+public:
+    vector<vector<int> > generateMatrix(int n) {
+        vector<vector<int> > res(n, vector<int>(n));
+        int start = 0, col = n, row = n, count = 1;
+        while(col > start * 2 && row > start * 2) {
+            int endCol = col - 1 - start;
+            int endRow = row - 1 - start;
+            for (int i = start; i < endCol + 1; ++i) {
+                res[start][i] = count;
+                count++;
+            }
+            for (int i = start + 1; i < endRow + 1; ++i) {
+                res[i][endCol] = count;
+                count++;
+            }
+            for (int i = endCol - 1; i >= start; --i) {
+                res[endRow][i] = count;
+                count++;
+            }
+            for (int i = endRow - 1; i > start; --i) {
+                res[i][start] = count;
+                count++;
+            }
+            start++;
+        }
+        return res;
+    }
+};
+

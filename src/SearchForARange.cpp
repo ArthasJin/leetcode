@@ -1,3 +1,4 @@
+// O(n) for worst case
 class Solution {
 public:
     vector<int> searchRange(int A[], int n, int target) {
@@ -21,6 +22,41 @@ public:
                     break;
                 }
             }
+        }
+        return res;
+    }
+};
+
+// O(logn) for worst case
+class Solution {
+public:
+    vector<int> searchRange(int A[], int n, int target) {
+        vector<int> res(2, -1);
+        if (n > 0) {
+            int low = 0, high = n;
+            while(low < high) {
+                int mid = (low + high) / 2;
+                if (A[mid] < target) {
+                    low = mid + 1;
+                } else {
+                    high = mid;
+                }
+            }
+            if (A[low] == target) {
+                res[0] = low;
+            } else {
+                return res;
+            }
+            low = 0, high = n;
+            while(low < high) {
+                int mid = (low + high) / 2;
+                if (A[mid] > target) {
+                    high = mid;
+                } else {
+                    low = mid + 1;
+                }
+            }
+            res[1] = low - 1;
         }
         return res;
     }

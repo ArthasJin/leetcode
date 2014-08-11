@@ -26,3 +26,30 @@ private:
     }
 };
 
+// more elegant solution
+/**
+ * Definition for binary tree
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool isBalanced(TreeNode *root) {
+        if (root) {
+            return isBalanced(root->left) && isBalanced(root->right) && abs(maxDepth(root->left) - maxDepth(root->right)) < 2;
+        }
+        return true;
+    }
+private:
+    int maxDepth(TreeNode *root) {
+        if (root) {
+            return 1 + max(maxDepth(root->left), maxDepth(root->right));
+        }
+        return 0;
+    }
+};
+

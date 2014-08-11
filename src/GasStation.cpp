@@ -28,3 +28,24 @@ public:
     }
 };
 
+// more elegant solution
+class Solution {
+public:
+    int canCompleteCircuit(vector<int> &gas, vector<int> &cost) {
+        int sum = 0, total = 0, j = -1;
+        for (int i = 0; i < gas.size(); ++i) {
+            sum += gas[i] - cost[i];
+            total += sum;
+            if (sum < 0) {
+                j = i;
+                sum = 0;
+            }
+        }
+        if (total < 0) {
+            return -1;
+        } else {
+            return j + 1;
+        }
+    }
+};
+

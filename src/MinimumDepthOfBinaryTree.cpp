@@ -34,3 +34,40 @@ private:
     }
 };
 
+// another solution
+/**
+ * Definition for binary tree
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    int minDepth(TreeNode *root) {
+        if (root) {
+            depth = INT_MAX;
+            minDepth(root, 1);
+            return depth;
+        }
+        return 0;
+    }
+private:
+    int depth;
+    void minDepth(TreeNode *root, int cur) {
+        if (root) {
+            if (!root->left && !root->right) {
+                depth = min(depth, cur);
+            }
+            if (root->left) {
+                minDepth(root->left, cur + 1);
+            }
+            if (root->right) {
+                minDepth(root->right, cur + 1);
+            }
+        }
+    }
+};
+

@@ -29,3 +29,32 @@ public:
     }
 };
 
+// more elegant solution
+class Solution {
+public:
+    int longestConsecutive(vector<int> &num) {
+        unordered_map<int, bool> dict;
+        for (int i = 0; i < num.size(); ++i) {
+            dict[num[i]] = false;
+        }
+        int res = 0;
+        for (int i = 0; i < num.size(); ++i) {
+            if (!dict[num[i]]) {
+                int count = 1;
+                int j = num[i];
+                while(dict.find(++j) != dict.end()) {
+                    dict[j] = true;
+                    count++;
+                }
+                j = num[i];
+                while(dict.find(--j) != dict.end()) {
+                    dict[j] = true;
+                    count++;
+                }
+                res = max(res, count);
+            }
+        }
+        return res;
+    }
+};
+
