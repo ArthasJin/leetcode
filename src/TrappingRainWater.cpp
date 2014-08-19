@@ -59,3 +59,30 @@ public:
     }
 };
 
+// one round scan
+class Solution {
+public:
+    int trap(int A[], int n) {
+        if (A) {
+            int left = 0, right = n - 1, res = 0, leftMax = 0, rightMax = 0;
+            while(left <= right) {
+                if (leftMax < rightMax) {
+                    leftMax = max(A[left], leftMax);
+                    if (A[left] < leftMax) {
+                        res += leftMax - A[left];
+                    }
+                    left++;
+                } else {
+                    rightMax = max(A[right], rightMax);
+                    if (A[right] < rightMax) {
+                        res += rightMax - A[right];
+                    }
+                    right--;
+                }
+            }
+            return res;
+        }
+        return 0;
+    }
+};
+

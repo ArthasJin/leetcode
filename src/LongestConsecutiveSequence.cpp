@@ -58,3 +58,32 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int longestConsecutive(vector<int> &num) {
+        unordered_map<int, int> dict;
+        for (int i = 0; i < num.size(); ++i) {
+            dict[num[i]] = i;
+        }
+        int res = 0;
+        for (unordered_map<int, int>::iterator iter = dict.begin(); iter != dict.end(); ++iter) {
+            int n = iter->first;
+            int count = 0;
+            if (dict[n] > - 1) {
+                while(dict.find(n) != dict.end()) {
+                    dict[n] = -1;
+                    n++, count++;
+                }
+                n = iter->first - 1;
+                while(dict.find(n) != dict.end()) {
+                    dict[n] = -1;
+                    n--, count++;
+                }
+                res = max(res, count);
+            }
+        }
+        return res;
+    }
+};
+

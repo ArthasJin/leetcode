@@ -89,3 +89,42 @@ private:
     }
 };
 
+// iterative
+/**
+ * Definition for binary tree
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool isSymmetric(TreeNode *root) {
+        if (root) {
+            queue<TreeNode *> q;
+            q.push(root->left);
+            q.push(root->right);
+            while(!q.empty()) {
+                TreeNode *node1 = q.front();
+                q.pop();
+                TreeNode *node2 = q.front();
+                q.pop();
+                if ((!node1 && node2) || (node1 && !node2)) {
+                    return false;
+                } else if (node1 && node2 && node1->val != node2->val) {
+                    return false;
+                }
+                if ((node1 && node2 && node1->val == node2->val)) {
+                    q.push(node1->left);
+                    q.push(node2->right);
+                    q.push(node1->right);
+                    q.push(node2->left);
+                }
+            }
+        }
+        return true;
+    }
+};
+
