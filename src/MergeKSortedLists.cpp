@@ -83,3 +83,39 @@ public:
     }
 };
 
+// alternitive
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *mergeKLists(vector<ListNode *> &lists) {
+        ListNode dummy(-1);
+        ListNode *cur = &dummy;
+        priority_queue<ListNode *, vector<ListNode *>, Solution> q;
+        for (int i = 0; i < lists.size(); ++i) {
+            if (lists[i]) {
+                q.push(lists[i]);
+            }
+        }
+        while(!q.empty()) {
+            ListNode *node = q.top();
+            q.pop();
+            cur->next = node;
+            cur = cur->next;
+            if (node->next) {
+                q.push(node->next);
+            }
+        }
+        return dummy.next;
+    }
+    bool operator()(ListNode *lhs, ListNode *rhs) {
+        return lhs->val > rhs->val;
+    }
+};
+
