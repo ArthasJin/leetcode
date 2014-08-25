@@ -57,3 +57,28 @@ public:
     }
 };
 
+// more elegant solution
+class Solution {
+public:
+    string countAndSay(int n) {
+        string prev = "1";
+        for (int i = 1; i < n; ++i) {
+            char cur = prev[0];
+            int count = 1;
+            string tmp;
+            for (int j = 1; j < prev.length() + 1; ++j) {
+                if (prev[j] == cur) {
+                    count++;
+                } else {
+                    tmp += count + '0';
+                    tmp.push_back(cur);
+                    cur = prev[j];
+                    count = 1;
+                }
+            }
+            prev = tmp;
+        }
+        return prev;
+    }
+};
+

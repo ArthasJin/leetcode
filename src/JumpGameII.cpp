@@ -22,3 +22,25 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int jump(int A[], int n) {
+        if (A) {
+            int i = n - 1;
+            int step = 0;
+            while (i > 0) {
+                for (int j = 0; j < i; ++j) {
+                    if (A[j] + j >= i) {
+                        i = j;
+                        step++;
+                        break;
+                    }
+                }
+            }
+            return step;
+        }
+        return -1;
+    }
+};
+

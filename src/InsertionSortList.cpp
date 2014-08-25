@@ -39,3 +39,37 @@ public:
     }
 };
 
+// more elegant solution
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *insertionSortList(ListNode *head) {
+        ListNode dummy(INT_MIN);
+        ListNode *cur = head;
+        while (cur) {
+            ListNode *prev = findInsertPlace(&dummy, cur);
+            ListNode *tmp = cur->next;
+            cur->next = prev->next;
+            prev->next = cur;
+            cur = tmp;
+        }
+        return dummy.next;
+    }
+private:
+    ListNode *findInsertPlace(ListNode *p1, ListNode *p2){
+        ListNode *prev = NULL, *cur = p1;
+        while (cur && cur->val <= p2->val) {
+            prev = cur;
+            cur = cur->next;
+        }
+        return prev;
+    }
+};
+

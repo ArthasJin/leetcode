@@ -26,3 +26,23 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int numDistinct(string S, string T) {
+        int record[200];
+        for (int i = 1; i < 200; i++) {
+            record[i] = 0;
+        }
+        record[0] = 1;
+        for (int i = 1; i < S.size() + 1; ++i) {
+            for (int j = T.size(); j >= 1; --j) {
+                if (S[i - 1] == T[j - 1]) {
+                    record[j] += record[j - 1];
+                }
+            }
+        }
+        return record[T.size()];
+    }
+};
+
