@@ -369,6 +369,36 @@ private:
     }
 };
 
+// iterative
+/**
+ * Definition for binary tree
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode *root) {
+        vector<int> res;
+        stack<TreeNode *> stk;
+        while(root || !stk.empty()) {
+            if (root) {
+                stk.push(root);
+                root = root->left;
+            } else {
+                root = stk.top();
+                stk.pop();
+                res.push_back(root->val);
+                root = root->right;
+            }
+        }
+        return res;
+    }
+};
+
 
 // BinaryTreeLevelOrderTraversal.cpp
 /**
@@ -719,6 +749,35 @@ private:
     }
 };
 
+// alternative
+class Solution {
+public:
+    vector<vector<int> > combinationSum(vector<int> &candidates, int target) {
+        sort(candidates.begin(), candidates.end());
+        vector<int> entry;
+        combine(candidates, 0, target, entry);
+        vector<vector<int> > res;
+        res.assign(s.begin(), s.end());
+        return res;
+    }
+private:
+    set<vector<int> > s;
+    void combine(vector<int> &can, int index, int target, vector<int> &entry) {
+        if (target < 0 || index == can.size()) {
+            return;
+        }
+        if (target == 0) {
+            s.insert(entry);
+            return;
+        }
+        for (int i = index; i < can.size(); ++i) {
+            entry.push_back(can[i]);
+            combine(can, i, target - can[i], entry);
+            entry.pop_back();
+        }
+    }
+};
+
 
 // CombinationSumII.cpp
 class Solution {
@@ -992,6 +1051,43 @@ public:
     }
 };
 
+// alternative
+/**
+ * Definition for singly-linked list with a random pointer.
+ * struct RandomListNode {
+ *     int label;
+ *     RandomListNode *next, *random;
+ *     RandomListNode(int x) : label(x), next(NULL), random(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    RandomListNode *copyRandomList(RandomListNode *head) {
+        RandomListNode dummy(-1);
+        RandomListNode *cur = &dummy;
+        unordered_map<RandomListNode *, RandomListNode *> copied;
+        while (head) {
+            if (copied.find(head) != copied.end()) {
+                cur->next = copied[head];
+            } else {
+                cur->next = new RandomListNode(head->label);
+                copied[head] = cur->next;
+            }
+            if (head->random) {
+                if (copied.find(head->random) != copied.end()) {
+                    cur->next->random = copied[head->random];
+                } else {
+                    cur->next->random = new RandomListNode(head->random->label);
+                    copied[head->random] = cur->next->random;
+                }
+            }
+            head = head->next;
+            cur = cur->next;
+        }
+        return dummy.next;
+    }
+};
+
 
 // CountAndSay.cpp
 class Solution {
@@ -1050,6 +1146,31 @@ public:
             tmp = "";
         }
         return res;
+    }
+};
+
+// more elegant solution
+class Solution {
+public:
+    string countAndSay(int n) {
+        string prev = "1";
+        for (int i = 1; i < n; ++i) {
+            char cur = prev[0];
+            int count = 1;
+            string tmp;
+            for (int j = 1; j < prev.length() + 1; ++j) {
+                if (prev[j] == cur) {
+                    count++;
+                } else {
+                    tmp += count + '0';
+                    tmp.push_back(cur);
+                    cur = prev[j];
+                    count = 1;
+                }
+            }
+            prev = tmp;
+        }
+        return prev;
     }
 };
 
@@ -1168,6 +1289,26 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int numDistinct(string S, string T) {
+        int record[200];
+        for (int i = 1; i < 200; i++) {
+            record[i] = 0;
+        }
+        record[0] = 1;
+        for (int i = 1; i < S.size() + 1; ++i) {
+            for (int j = T.size(); j >= 1; --j) {
+                if (S[i - 1] == T[j - 1]) {
+                    record[j] += record[j - 1];
+                }
+            }
+        }
+        return record[T.size()];
+    }
+};
+
 
 // DivideTwoIntegers.cpp
 class Solution {
@@ -1255,6 +1396,41 @@ public:
     }
 };
 
+// more elegant solution
+class Solution {
+public:
+    int evalRPN(vector<string> &tokens) {
+        string ops = "+-*/";
+        stack<int> stk;
+        for (int i = 0; i < tokens.size(); ++i) {
+            int op = ops.find(tokens[i]);
+            if (op != string::npos) {
+                int b = stk.top();
+                stk.pop();
+                int a = stk.top();
+                stk.pop();
+                stk.push(eval(a, b, ops[op]));
+            } else {
+                stk.push(atoi(&tokens[i][0]));
+            }
+        }
+        return stk.top();
+    }
+private:
+    int eval(int &n1, int &n2, char op) {
+        switch(op) {
+        case '+':
+            return n1 + n2;
+        case '-':
+            return n1 - n2;
+        case '*':
+            return n1 * n2;
+        case '/':
+            return n1 / n2;
+        }
+    }
+};
+
 
 // FirstMissingPositive.cpp
 class Solution {
@@ -1284,6 +1460,27 @@ public:
         for (int i = 1; i < n + 1; ++i) {
             if (dict.find(i) == dict.end()) {
                 return i;
+            }
+        }
+        return n + 1;
+    }
+};
+
+// space O(1)
+class Solution {
+public:
+    int firstMissingPositive(int A[], int n) {
+        int i = 0;
+        while(i < n) {
+            if (A[i] > 0 && A[i] < n + 1 && A[i] != i + 1 && A[i] != A[A[i] - 1]) {
+                swap(A[A[i] - 1], A[i]);
+            } else {
+                i++;
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            if (A[i] != i + 1) {
+                return i + 1;
             }
         }
         return n + 1;
@@ -1380,6 +1577,27 @@ public:
             }
         }
         return -1;
+    }
+};
+
+// more elegant solution
+class Solution {
+public:
+    int canCompleteCircuit(vector<int> &gas, vector<int> &cost) {
+        int sum = 0, total = 0, j = -1;
+        for (int i = 0; i < gas.size(); ++i) {
+            sum += gas[i] - cost[i];
+            total += sum;
+            if (sum < 0) {
+                j = i;
+                sum = 0;
+            }
+        }
+        if (total < 0) {
+            return -1;
+        } else {
+            return j + 1;
+        }
     }
 };
 
@@ -1488,6 +1706,38 @@ public:
     }
 };
 
+// space O(1)
+
+/**
+ * Definition for an interval.
+ * struct Interval {
+ *     int start;
+ *     int end;
+ *     Interval() : start(0), end(0) {}
+ *     Interval(int s, int e) : start(s), end(e) {}
+ * };
+ */
+class Solution {
+public:
+    vector<Interval> insert(vector<Interval> &intervals, Interval newInterval) {
+        vector<Interval>::iterator iter = intervals.begin();
+        while (iter != intervals.end()) {
+            if (newInterval.end < iter->start) {
+                intervals.insert(iter, newInterval);
+                return intervals;
+            } else if (newInterval.start > iter->end) {
+                iter++;
+            } else {
+                newInterval.start = min(iter->start, newInterval.start);
+                newInterval.end = max(iter->end, newInterval.end);
+                intervals.erase(iter);
+            }
+        }
+        intervals.insert(intervals.end(), newInterval);
+        return intervals;
+    }
+};
+
 
 // InsertionSortList.cpp
 /**
@@ -1531,6 +1781,40 @@ public:
     }
 };
 
+// more elegant solution
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *insertionSortList(ListNode *head) {
+        ListNode dummy(INT_MIN);
+        ListNode *cur = head;
+        while (cur) {
+            ListNode *prev = findInsertPlace(&dummy, cur);
+            ListNode *tmp = cur->next;
+            cur->next = prev->next;
+            prev->next = cur;
+            cur = tmp;
+        }
+        return dummy.next;
+    }
+private:
+    ListNode *findInsertPlace(ListNode *p1, ListNode *p2){
+        ListNode *prev = NULL, *cur = p1;
+        while (cur && cur->val <= p2->val) {
+            prev = cur;
+            cur = cur->next;
+        }
+        return prev;
+    }
+};
+
 
 // IntegerToRoman.cpp
 class Solution {
@@ -1563,6 +1847,23 @@ private:
             roman.append(1, symbols[0]);
             roman.append(1, symbols[2]);
         }
+    }
+};
+
+// more elegant solution
+class Solution {
+public:
+    string intToRoman(int num) {
+        vector<string> symbols = { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I" };
+        vector<int> roman = { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
+        string res;
+        for (int i = 0; i < symbols.size(); ++i) {
+            while(num >= roman[i]) {
+                res.append(symbols[i]);
+                num -= roman[i];
+            }
+        }
+        return res;
     }
 };
 
@@ -1633,6 +1934,28 @@ public:
             }
         }
         return 0;
+    }
+};
+
+// alternative
+class Solution {
+public:
+    int jump(int A[], int n) {
+        if (A) {
+            int i = n - 1;
+            int step = 0;
+            while (i > 0) {
+                for (int j = 0; j < i; ++j) {
+                    if (A[j] + j >= i) {
+                        i = j;
+                        step++;
+                        break;
+                    }
+                }
+            }
+            return step;
+        }
+        return -1;
     }
 };
 
@@ -1764,6 +2087,39 @@ private:
         for (int i = 0; i < v[index].size(); ++i) {
             entry.push_back(v[index][i]);
             combine(v, index + 1, entry);
+            entry.pop_back();
+        }
+    }
+};
+
+class Solution {
+public:
+    vector<string> letterCombinations(string digits) {
+        unordered_map<int, string> dict;
+        dict[0] = " ";
+        dict[1] = "";
+        dict[2] = "abc";
+        dict[3] = "def";
+        dict[4] = "ghi";
+        dict[5] = "jkl";
+        dict[6] = "mno";
+        dict[7] = "pqrs";
+        dict[8] = "tuv";
+        dict[9] = "wxyz";
+        vector<string> res;
+        string entry;
+        combine(digits, 0, entry, dict, res);
+        return res;
+    }
+private:
+    void combine(string &digits, int index, string &entry, unordered_map<int, string> &dict, vector<string> &res) {
+        if (index == digits.size()) {
+            res.push_back(entry);
+            return;
+        }
+        for (int i = 0; i < dict[digits[index] - '0'].length(); ++i) {
+            entry.push_back(dict[digits[index] - '0'][i]);
+            combine(digits, index + 1, entry, dict, res);
             entry.pop_back();
         }
     }
@@ -1992,6 +2348,35 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int longestConsecutive(vector<int> &num) {
+        unordered_map<int, int> dict;
+        for (int i = 0; i < num.size(); ++i) {
+            dict[num[i]] = i;
+        }
+        int res = 0;
+        for (unordered_map<int, int>::iterator iter = dict.begin(); iter != dict.end(); ++iter) {
+            int n = iter->first;
+            int count = 0;
+            if (dict[n] > - 1) {
+                while(dict.find(n) != dict.end()) {
+                    dict[n] = -1;
+                    n++, count++;
+                }
+                n = iter->first - 1;
+                while(dict.find(n) != dict.end()) {
+                    dict[n] = -1;
+                    n--, count++;
+                }
+                res = max(res, count);
+            }
+        }
+        return res;
+    }
+};
+
 
 // LongestPalindromicSubstring.cpp
 class Solution {
@@ -2024,6 +2409,58 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        bool dp[1000][1000] = { false };
+        for (int i = 0; i < s.length(); ++i) {
+            dp[i][i] = true;
+        }
+        int start = 0, end = 0;
+        for (int i = 0; i < s.length() - 1; ++i) {
+            if (s[i] == s[i + 1]) {
+                dp[i][i + 1] = true;
+                start = i;
+                end = i + 1;
+            }
+        }
+        for (int i = s.length() - 3; i >= 0; --i) {
+            for (int j = i + 2; j < s.length(); ++j) {
+                if (s[i] == s[j] && dp[i + 1][j - 1]) {
+                    dp[i][j] = true;
+                    if ((j - i) > (end - start)) {
+                        start = i;
+                        end = j;
+                    }
+                }
+            }
+        }
+        return s.substr(start, end - start + 1);
+    }
+};
+
+// more elegant solution
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        int start = 0, end = 0;
+        bool dp[1000][1000] = { false };
+        for (int i = s.length() - 1; i >= 0; --i) {
+            for (int j = i; j < s.length(); ++j) {
+                if (s[i] == s[j] && (j - i < 2 || dp[i + 1][j - 1])) {
+                    dp[i][j] = 1;
+                    if (j - i > end - start) {
+                        start = i;
+                        end = j;
+                    }
+                }
+            }
+        }
+        return s.substr(start, end - start + 1);
+    }
+};
+
 
 // LongestSubstringWithoutRepeatingCharacters.cpp
 class Solution {
@@ -2045,6 +2482,29 @@ public:
             return max(maxLen, len);
         }
         return 0;
+    }
+};
+
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        unordered_map<char, int> dict;
+        int res = 0, start = 0;
+        for (int i = 0; i < s.length(); ++i) {
+            if (dict.find(s[i]) != dict.end()) {
+                removeDup(dict, start, dict[s[i]], s);
+                start = dict[s[i]] + 1;
+            }
+            dict[s[i]] = i;
+            res = max(res, i - start + 1);
+        }
+        return res;
+    }
+private:
+    void removeDup(unordered_map<char, int> &dict, int start, int end, string &s) {
+        for (int i = start; i < end; ++i) {
+            dict.erase(s[i]);
+        }
     }
 };
 
@@ -2396,6 +2856,42 @@ public:
     }
 };
 
+// alternitive
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *mergeKLists(vector<ListNode *> &lists) {
+        ListNode dummy(-1);
+        ListNode *cur = &dummy;
+        priority_queue<ListNode *, vector<ListNode *>, Solution> q;
+        for (int i = 0; i < lists.size(); ++i) {
+            if (lists[i]) {
+                q.push(lists[i]);
+            }
+        }
+        while(!q.empty()) {
+            ListNode *node = q.top();
+            q.pop();
+            cur->next = node;
+            cur = cur->next;
+            if (node->next) {
+                q.push(node->next);
+            }
+        }
+        return dummy.next;
+    }
+    bool operator()(ListNode *lhs, ListNode *rhs) {
+        return lhs->val > rhs->val;
+    }
+};
+
 
 // MergeSortedArray.cpp
 class Solution {
@@ -2515,6 +3011,34 @@ private:
                 minDepth(root->right, cur + 1);
             }
         }
+    }
+};
+
+// more elegant soltuion
+/**
+ * Definition for binary tree
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    int minDepth(TreeNode *root) {
+        if (root) {
+            if (!root->left && !root->right) {
+                return 1;
+            } else if (root->left && !root->right) {
+                return 1 + minDepth(root->left);
+            } else if (!root->left && root->right) {
+                return 1 + minDepth(root->right);
+            } else {
+                return 1 + min(minDepth(root->left), minDepth(root->right));
+            }
+        }
+        return 0;
     }
 };
 
@@ -2661,6 +3185,59 @@ private:
                 res = char(carry+'0') + res;
             }
         }
+    }
+};
+
+// alternative
+class Solution {
+public:
+    string multiply(string num1, string num2) {
+        string res = "0";
+        for (int i = num2.size() - 1; i >= 0; --i) {
+            string p = multiply(num1, num2[i]);
+            if (p != "0") {
+                for (int j = 0; j < num2.size() - i - 1; ++j) {
+                    p += "0";
+                }
+                res = add(p, res);
+            }
+        }
+        return res;
+    }
+private:
+    string multiply(string &num, char c) {
+        if (c == '0') {
+            return "0";
+        }
+        string res;
+        int carry = 0;
+        for (int i = num.size() - 1; i >= 0; --i) {
+            int m = (num[i] - '0') * (c - '0') + carry;
+            res = char(m % 10 + '0') + res;
+            carry = m / 10;
+        }
+        if (carry) {
+            res = char(carry + '0') + res;
+        }
+        return res;
+    }
+    string add(string &a, string &b) {
+        int carry = 0, i_a = a.length() - 1, i_b = b.length() - 1;
+        string res;
+        while(i_a >= 0 || i_b >= 0) {
+            int val1 = i_a >= 0 ? a[i_a] - '0' : 0;
+            int val2 = i_b >= 0 ? b[i_b] - '0' : 0;
+            int sum = val1 + val2 + carry;
+            char ch = sum % 10 + '0';
+            carry = sum / 10;
+            res.push_back(ch);
+            i_a--, i_b--;
+        }
+        if (carry) {
+            res.push_back('1');
+        }
+        reverse(res.begin(), res.end());
+        return res;
     }
 };
 
@@ -3000,6 +3577,24 @@ private:
     }
 };
 
+// normal solution
+class Solution {
+public:
+    vector<vector<int> > generate(int numRows) {
+        vector<vector<int> > res(numRows);
+        for (int i = 0; i < numRows; ++i) {
+            for (int j = 0; j < i + 1; ++j) {
+                if (j == 0 || j == i) {
+                    res[i].push_back(1);
+                } else {
+                    res[i].push_back(res[i - 1][j - 1] + res[i - 1][j]);
+                }
+            }
+        }
+        return res;
+    }
+};
+
 
 // PascalTriangleII.cpp
 class Solution {
@@ -3032,6 +3627,24 @@ private:
     }
 };
 
+// O(1) space
+class Solution {
+public:
+    vector<vector<int> > generate(int numRows) {
+        vector<vector<int> > res(numRows);
+        for (int i = 0; i < numRows; ++i) {
+            for (int j = 0; j < i + 1; ++j) {
+                if (j == 0 || j == i) {
+                    res[i].push_back(1);
+                } else {
+                    res[i].push_back(res[i - 1][j - 1] + res[i - 1][j]);
+                }
+            }
+        }
+        return res;
+    }
+};
+
 
 // PathSum.cpp
 /**
@@ -3061,6 +3674,30 @@ private:
                 return false;
             }
             return hasPath(root->left, sum) || hasPath(root->right, sum);
+        }
+        return false;
+    }
+};
+
+// more elegant solution
+/**
+ * Definition for binary tree
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool hasPathSum(TreeNode *root, int sum) {
+        if (root) {
+            if (sum == root->val && !root->left && !root->right) {
+                return true;
+            } else {
+                return hasPathSum(root->left, sum - root->val) || hasPathSum(root->right, sum - root->val);
+            }
         }
         return false;
     }
@@ -3253,6 +3890,32 @@ private:
     }
 };
 
+// recursive
+/**
+ * Definition for binary tree with next pointer.
+ * struct TreeLinkNode {
+ *  int val;
+ *  TreeLinkNode *left, *right, *next;
+ *  TreeLinkNode(int x) : val(x), left(NULL), right(NULL), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    void connect(TreeLinkNode *root) {
+        if (!root) {
+            return;
+        }
+        if (root->left) {
+            root->left->next = root->right;
+        }
+        if (root->next && root->right) {
+            root->right->next = root->next->left;
+        }
+        connect(root->left);
+        connect(root->right);
+    }
+};
+
 
 // PopulatingNextRightPointersInEachNodeII.cpp
 /**
@@ -3297,6 +3960,44 @@ private:
             swap(q1, q2);
             res.push_back(level);
         }
+    }
+};
+
+// recursive
+/**
+ * Definition for binary tree with next pointer.
+ * struct TreeLinkNode {
+ *  int val;
+ *  TreeLinkNode *left, *right, *next;
+ *  TreeLinkNode(int x) : val(x), left(NULL), right(NULL), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    void connect(TreeLinkNode *root) {
+        if (!root) {
+            return;
+        }
+        TreeLinkNode *p = root->next;
+        while(p) {
+            if (p->left) {
+                p = p->left;
+                break;
+            }
+            if (p->right) {
+                p = p->right;
+                break;
+            }
+            p = p->next;
+        }
+        if (root->right) {
+            root->right->next = p;
+        }
+        if (root->left) {
+            root->left->next = root->right ? root->right : p;
+        }
+        connect(root->right);
+        connect(root->left);
     }
 };
 
@@ -3440,6 +4141,29 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    bool isMatch(const char *s, const char *p) {
+        if (!s || !p) {
+            return false;
+        }
+        if (*p == '\0') {
+            return *s == '\0';
+        }
+        if (*(p + 1) != '*') {
+            return ((*s == *p) || (*p == '.' && *s != '\0')) && isMatch(s + 1, p + 1);
+        }
+        while ((*p == *s) || (*p == '.' && *s != '\0')) {
+            if (isMatch(s, p + 2)) {
+                return true;
+            }
+            s++;
+        }
+        return isMatch(s, p + 2);
+    }
+};
+
 
 // RemoveDuplicatesFromSortedArray.cpp
 class Solution {
@@ -3568,6 +4292,37 @@ public:
             }
         }
         return head->next;
+    }
+};
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *deleteDuplicates(ListNode *head) {
+        ListNode dummy(-1);
+        dummy.next = head;
+        ListNode *cur = &dummy;
+        while(cur && cur->next) {
+            ListNode *p = cur->next->next;
+            bool dup = false;
+            while(p && p->val == cur->next->val) {
+                p = p->next;
+                dup = true;
+            }
+            if (dup) {
+                cur->next = p;
+            } else {
+                cur = cur->next;
+            }
+        }
+        return dummy.next;
     }
 };
 
@@ -4171,6 +4926,35 @@ public:
     }
 };
 
+// space O(1)
+class Solution {
+public:
+    int search(int A[], int n, int target) {
+        if (A) {
+            int low = 0, high = n - 1;
+            while(low <= high) {
+                int mid = low + (high - low) / 2;
+                if (A[mid] == target) {
+                    return mid;
+                } else if (A[mid] >= A[low]) {
+                    if (target >= A[low] && target <= A[mid]) {
+                        high = mid - 1;
+                    } else {
+                        low = mid + 1;
+                    }
+                } else {
+                    if (target >= A[low] || target <= A[mid]) {
+                        high = mid - 1;
+                    } else {
+                        low = mid + 1;
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+};
+
 
 // SearchInRotatedSortedArrayII.cpp
 class Solution {
@@ -4181,6 +4965,37 @@ public:
             dict[A[i]] = i;
         }
         return dict.find(target) != dict.end();
+    }
+};
+
+// space O(1)
+class Solution {
+public:
+    bool search(int A[], int n, int target) {
+        if (A) {
+            int low = 0, high = n - 1;
+            while(low <= high) {
+                int mid = low + (high - low) / 2;
+                if (A[mid] == target) {
+                    return true;
+                } else if (A[mid] > A[low]) {
+                    if (target >= A[low] && target < A[mid]) {
+                        high = mid - 1;
+                    } else {
+                        low = mid + 1;
+                    }
+                } else if (A[mid] < A[low]) {
+                    if (target > A[mid] && target <= A[high]) {
+                        low = mid + 1;
+                    } else {
+                        high = mid - 1;
+                    }
+                } else {
+                    low++;
+                }
+            }
+        }
+        return false;
     }
 };
 
@@ -4338,6 +5153,26 @@ public:
             } else if (A[i] == 2) {
                 swap(A[i], A[blue]);
                 blue--;
+            }
+        }
+    }
+};
+
+// counting sort
+class Solution {
+public:
+    void sortColors(int A[], int n) {
+        int count[3] = { 0 };
+        for (int i = 0; i < n; ++i) {
+            count[A[i]] += 1;
+        }
+        for (int i = 0; i < 3; ++i) {
+            int start = 0;
+            for (int j = 0; j < i; ++j) {
+                start += count[j];
+            }
+            for (int k = 0; k < count[i]; ++k) {
+                A[k + start] = i;
             }
         }
     }
@@ -5014,6 +5849,45 @@ private:
     }
 };
 
+// iterative
+/**
+ * Definition for binary tree
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool isSymmetric(TreeNode *root) {
+        if (root) {
+            queue<TreeNode *> q;
+            q.push(root->left);
+            q.push(root->right);
+            while(!q.empty()) {
+                TreeNode *node1 = q.front();
+                q.pop();
+                TreeNode *node2 = q.front();
+                q.pop();
+                if ((!node1 && node2) || (node1 && !node2)) {
+                    return false;
+                } else if (node1 && node2 && node1->val != node2->val) {
+                    return false;
+                }
+                if ((node1 && node2 && node1->val == node2->val)) {
+                    q.push(node1->left);
+                    q.push(node2->right);
+                    q.push(node1->right);
+                    q.push(node2->left);
+                }
+            }
+        }
+        return true;
+    }
+};
+
 
 // TextJustification.cpp
 class Solution {
@@ -5106,6 +5980,33 @@ public:
                     res += maxValue - A[i];
                 } else {
                     maxValue = A[i];
+                }
+            }
+            return res;
+        }
+        return 0;
+    }
+};
+
+// one round scan
+class Solution {
+public:
+    int trap(int A[], int n) {
+        if (A) {
+            int left = 0, right = n - 1, res = 0, leftMax = 0, rightMax = 0;
+            while(left <= right) {
+                if (leftMax < rightMax) {
+                    leftMax = max(A[left], leftMax);
+                    if (A[left] < leftMax) {
+                        res += leftMax - A[left];
+                    }
+                    left++;
+                } else {
+                    rightMax = max(A[right], rightMax);
+                    if (A[right] < rightMax) {
+                        res += rightMax - A[right];
+                    }
+                    right--;
                 }
             }
             return res;
@@ -5313,6 +6214,65 @@ public:
                 return false;
             }
             end++;
+        }
+        return true;
+    }
+};
+
+// alternative
+class Solution {
+public:
+    bool isNumber(const char *s) {
+        if (!s) {
+            return false;
+        }
+        while(isspace(*s)) {
+            s++;
+        }
+        if (*s == '+' || *s == '-') {
+            s++;
+        }
+        bool hasExp = false, hasDot = false, firstPart = false, secondPart = false, hasSpace = false;
+        while (*s != '\0') {
+            if (*s == '.') {
+                if (hasExp || hasDot || hasSpace) {
+                    return false;
+                } else {
+                    hasDot = true;
+                }
+            } else if (*s == 'E' || *s == 'e') {
+                if (hasExp || !firstPart || hasSpace) {
+                    return false;
+                } else {
+                    hasExp = true;
+                }
+            } else if (isdigit(*s)) {
+                if (hasSpace) {
+                    return false;
+                }
+                if (!hasExp) {
+                    firstPart = true;
+                } else {
+                    secondPart = true;
+                }
+            } else if (*s == '+' || *s == '-') {
+                if (hasSpace) {
+                    return false;
+                }
+                if (!hasExp || !(*(s - 1) == 'e' || *(s - 1) == 'E')) {
+                    return false;
+                }
+            } else if (isspace(*s)) {
+                hasSpace = true;
+            } else {
+                return false;
+            }
+            s++;
+        }
+        if (!firstPart) {
+            return false;
+        } else if (hasExp && !secondPart) {
+            return false;
         }
         return true;
     }
