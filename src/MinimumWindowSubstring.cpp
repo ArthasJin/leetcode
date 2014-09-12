@@ -38,3 +38,44 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    string minWindow(string S, string T) {
+        if (S.length() == 0 || T.length() == 0 || T.length() > S.length()) {
+            return "";
+        }
+        unordered_map<char, int> dict;
+        for (int i = 0; i < T.length(); ++i) {
+            dict[T[i]] += 1;
+        }
+        int start = 0, end = 0, count = 0, minStart = -1, minWidth = INT_MAX;
+        unordered_map<char, int> curDict;
+        while (end < S.length()) {
+            if (dict.find(S[end]) != dict.end()) {
+                curDict[S[end]] += 1;
+                if (curDict[S[end]] <= dict[S[end]]) {
+                    count++;
+                }
+            }
+            if (count == T.length()) {
+                while (start < end && dict.find(S[start]) == dict.end() || curDict[S[start]] > dict[S[start]]) {
+                    if (dict.find(S[start]) != dict.end()) {
+                        curDict[S[start]]--;
+                    }
+                    start++;
+                }
+                if (minWidth > (end - start + 1)) {
+                    minWidth = end - start + 1;
+                    minStart = start;
+                }
+            }
+            end++;
+        }
+        if (minStart == -1) {
+            return "";
+        }
+        return S.substr(minStart, minWidth);
+    }
+};
+

@@ -62,3 +62,51 @@ public:
     }
 };
 
+// alternative O(logn) solution
+class Solution {
+public:
+    vector<int> searchRange(int A[], int n, int target) {
+        vector<int> res = {-1, -1};
+        if (A) {
+            res[0] = findLeft(A, 0, n - 1, target);
+            res[1] = findRight(A, n, 0, n - 1, target);
+        }
+        return res;
+    }
+private:
+    int findLeft(int array[], int left, int right, int target) {
+        if (left > right) {
+            return -1;
+        }
+        int mid = (left + right) / 2;
+        if (array[mid] == target) {
+            if (mid > 0 && array[mid - 1] == target) {
+                return findLeft(array, 0, mid - 1, target);
+            } else {
+                return mid;
+            }
+        } else if (array[mid] > target) {
+            return findLeft(array, left, mid - 1, target);
+        } else {
+            return findLeft(array, mid + 1, right, target);
+        }
+    }
+    int findRight(int array[], int n, int left, int right, int target) {
+        if (left > right) {
+            return -1;
+        }
+        int mid = (left + right) / 2;
+        if (array[mid] == target) {
+            if (mid < n - 1 && array[mid + 1] == target) {
+                return findRight(array, n, mid + 1, right, target);
+            } else {
+                return mid;
+            }
+        } else if (array[mid] > target) {
+            return findRight(array, n, left, mid - 1, target);
+        } else {
+            return findRight(array, n, mid + 1, right, target);
+        }
+    }
+};
+

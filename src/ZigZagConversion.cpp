@@ -1,39 +1,20 @@
 class Solution {
 public:
     string convert(string s, int nRows) {
-        if (nRows > 1) {
-            vector<string> m(nRows);
-            int i = 0, row = 0;
-            bool isZigzag = false;
-            while(i < s.length()) {
-                if (row < nRows && !isZigzag) {
-                    m[row] += s[i];
-                    row++;
-                    i++;
-                } else {
-                    if (!isZigzag) {
-                        isZigzag = true;
-                        row--;
-                    } else {
-                        row--;
-                        m[row] += s[i];
-                        i++;
-                        if (row == 0) {
-                            isZigzag = false;
-                            row++;
-                        }
-                    }
-                }
-            }
-            string res;
-            for (int i = 0; i < m.size(); ++i) {
-                for (int j = 0; j < m[i].length(); ++j) {
-                    res += m[i][j];
-                }
-            }
-            return res;
+        if (s.length() == 0 || nRows < 2) {
+            return s;
         }
-        return s;
+        string res;
+        int size = nRows * 2 - 2;
+        for (int i = 0; i < nRows; ++i) {
+            for (int j = i; j < s.length(); j += size) {
+                res.push_back(s[j]);
+                if (i != 0 && i != nRows - 1 && j + size - 2 * i < s.length()) {
+                    res.push_back(s[j + size - 2 * i]);
+                }
+            }
+        }
+        return res;
     }
 };
 
