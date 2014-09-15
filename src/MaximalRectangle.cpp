@@ -94,3 +94,54 @@ private:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int maximalRectangle(vector<vector<char> > &matrix) {
+        int row = matrix.size();
+        if (row == 0) {
+            return 0;
+        }
+        int col = matrix[0].size();
+        int res = 0;
+        vector<vector<int> > m(row, vector<int>(col));
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                if (matrix[i][j] == '0') {
+                    m[i][j] = 0;
+                } else {
+                    if (i > 0) {
+                        m[i][j] = m[i - 1][j] + 1;
+                    } else {
+                        m[i][j] = 1;
+                    }
+                }
+            }
+            res = max(res, largestRectangle(m[i]));
+        }
+        return res;
+    }
+private:
+    int largestRectangle(vector<int> &height) {
+        height.push_back(0);
+        stack<int> stk;
+        int res = 0, i = 0;
+        while (i < height.size()) {
+            if (stk.empty() || height[stk.top()] < height[i]) {
+                stk.push(i);
+                i++;
+            } else {
+                int index = stk.top();
+                stk.pop();
+                if (stk.empty()) {
+                    res = max(res, height[index] * i);
+                } else {
+                    res = max(res, height[index] * (i - stk.top() - 1));
+                }
+            }
+        }
+        height.pop_back();
+        return res;
+    }
+};
+
