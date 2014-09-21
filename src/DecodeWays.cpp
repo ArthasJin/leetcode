@@ -81,3 +81,46 @@ private:
     }
 };
 
+// space O(1)
+// f(n) = f(n - 2) (if valid) + f(n - 1) (if valid)
+class Solution {
+public:
+    int numDecodings(string s) {
+        if (s.length() == 0 || s[0] == '0') {
+            return 0;
+        }
+        int fn_2 = 1, fn_1 = 1;
+        for (int i = 1; i < s.length(); ++i) {
+            int fn = 0;
+            if (!isValid(s.substr(i, 1))) {
+                if (isValid(s.substr(i - 1, 2))) {
+                    fn = fn_2;
+                }
+            } else {
+                if (!isValid(s.substr(i - 1, 1))) {
+                    fn = fn_1;
+                } else {
+                    if (isValid(s.substr(i - 1, 2))) {
+                        fn = fn_1 + fn_2;
+                    } else {
+                        fn = fn_1;
+                    }
+                }
+            }
+            fn_2 = fn_1;
+            fn_1 = fn;
+        }
+        return fn_1;
+    }
+private:
+    bool isValid(string s) {
+        if (s.length() == 2) {
+            int num = atoi(&s[0]);
+            return num >= 10 && num <= 26;
+        } else if (s.length() == 1) {
+            return s[0] >= '1' && s[0] <= '9';
+        }
+        return false;
+    }
+};
+

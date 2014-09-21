@@ -66,3 +66,49 @@ public:
     }
 };
 
+// O(n^2)
+// Space O(n)
+/**
+ * Definition for an interval.
+ * struct Interval {
+ *     int start;
+ *     int end;
+ *     Interval() : start(0), end(0) {}
+ *     Interval(int s, int e) : start(s), end(e) {}
+ * };
+ */
+class Solution {
+public:
+    vector<Interval> merge(vector<Interval> &intervals) {
+        vector<Interval> res;
+        sort(intervals.begin(), intervals.end(), Solution::cmp);
+        list<Interval> l;
+        l.assign(intervals.begin(), intervals.end());
+        for (int i = 0; i < intervals.size(); ++i) {
+            insert(l, intervals[i]);
+        }
+        res.assign(l.begin(), l.end());
+        return res;
+    }
+    static bool cmp(Interval lhs, Interval rhs) {
+        return lhs.start < rhs.start;
+    }
+private:
+    void insert(list<Interval> &l, Interval interval) {
+        list<Interval>::iterator iter = l.begin();
+        while (iter != l.end()) {
+            if (interval.end < iter->start) {
+                l.insert(iter, interval);
+                return;
+            } else if (interval.start > iter->end) {
+                iter++;
+            } else {
+                interval.start = min(interval.start, iter->start);
+                interval.end = max(interval.end, iter->end);
+                iter = l.erase(iter);
+            }
+        }
+        l.push_back(interval);
+    }
+};
+
