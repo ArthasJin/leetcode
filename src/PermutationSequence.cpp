@@ -28,3 +28,31 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    string getPermutation(int n, int k) {
+        string res, candidate;
+        for (int i = 1; i < n + 1; ++i) {
+            candidate.push_back(i + '0');
+        }
+        int total = factorial(n);
+        for (int i = 0; i < n; ++i) {
+            total /= (n - i);
+            int index = (k - 1) / total;
+            res.push_back(candidate[index]);
+            candidate.erase(index, 1);
+            k -= index * total;
+        }
+        return res;
+    }
+private:
+    int factorial(int n) {
+        int res = 1;
+        for (int i = 2; i < n + 1; ++i) {
+            res *= i;
+        }
+        return res;
+    }
+};
+

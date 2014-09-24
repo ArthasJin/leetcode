@@ -35,7 +35,52 @@ public:
                 n--;
             }
         }
-        return head->next;  //the 1st node is elmininated 
+        return head->next;  //the 1st node is elmininated
+    }
+};
+
+// alternative
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *partition(ListNode *head, int x) {
+        ListNode dummy(-1);
+        dummy.next = head;
+        ListNode *cur = head, *prev = &dummy;
+        while (cur && cur->next) {
+            if (cur->val >= x) {
+                break;
+            } else {
+                prev = cur;
+                cur = cur->next;
+            }
+        }
+        ListNode *node = cur;
+        if (cur) {
+            cur = cur->next;
+        }
+        while (cur) {
+            if (cur->val < x) {
+                ListNode *tmp1 = cur->next;
+                ListNode *tmp2 = prev->next;
+                prev->next = cur;
+                cur->next = tmp2;
+                prev = cur;
+                node->next = tmp1;
+                cur = tmp1;
+            } else {
+                cur = cur->next;
+                node = node->next;
+            }
+        }
+        return dummy.next;
     }
 };
 

@@ -43,3 +43,24 @@ private:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        int start = 0, end = 0, res = 0;
+        int dict[255] = { 0 };
+        while (start < s.length() && end < s.length()) {
+            if (dict[s[end]] == 0) {
+                dict[s[end]] = 1;
+                res = max(res, end - start + 1);
+                end++;
+            } else {
+                dict[s[start]] = 0;
+                res = max(res, end - start);
+                start++;
+            }
+        }
+        return res;
+    }
+};
+
