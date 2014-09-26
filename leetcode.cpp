@@ -558,6 +558,53 @@ private:
     }
 };
 
+// iterative
+/**
+ * Definition for binary tree
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode *root) {
+        TreeNode *prev = NULL;
+        stack<TreeNode *> stk;
+        vector<int> res;
+        if (root) {
+            stk.push(root);
+            while (!stk.empty()) {
+                TreeNode *cur = stk.top();
+                if (!prev || prev->left == cur || prev->right == cur) {
+                    if (cur->left) {
+                        stk.push(cur->left);
+                    } else if (cur->right) {
+                        stk.push(cur->right);
+                    } else {
+                        res.push_back(cur->val);
+                        stk.pop();
+                    }
+                } else if (cur->left == prev) {
+                    if (cur->right) {
+                        stk.push(cur->right);
+                    } else {
+                        res.push_back(cur->val);
+                        stk.pop();
+                    }
+                } else if (cur->right == prev) {
+                    res.push_back(cur->val);
+                    stk.pop();
+                }
+                prev = cur;
+            }
+        }
+        return res;
+    }
+};
+
 
 // BinaryTreePreorderTraversal.cpp
 /**
@@ -1259,6 +1306,49 @@ private:
     }
 };
 
+// space O(1)
+// f(n) = f(n - 2) (if valid) + f(n - 1) (if valid)
+class Solution {
+public:
+    int numDecodings(string s) {
+        if (s.length() == 0 || s[0] == '0') {
+            return 0;
+        }
+        int fn_2 = 1, fn_1 = 1;
+        for (int i = 1; i < s.length(); ++i) {
+            int fn = 0;
+            if (!isValid(s.substr(i, 1))) {
+                if (isValid(s.substr(i - 1, 2))) {
+                    fn = fn_2;
+                }
+            } else {
+                if (!isValid(s.substr(i - 1, 1))) {
+                    fn = fn_1;
+                } else {
+                    if (isValid(s.substr(i - 1, 2))) {
+                        fn = fn_1 + fn_2;
+                    } else {
+                        fn = fn_1;
+                    }
+                }
+            }
+            fn_2 = fn_1;
+            fn_1 = fn;
+        }
+        return fn_1;
+    }
+private:
+    bool isValid(string s) {
+        if (s.length() == 2) {
+            int num = atoi(&s[0]);
+            return num >= 10 && num <= 26;
+        } else if (s.length() == 1) {
+            return s[0] >= '1' && s[0] <= '9';
+        }
+        return false;
+    }
+};
+
 
 // DistinctSubsequences.cpp
 class Solution {
@@ -1738,6 +1828,52 @@ public:
     }
 };
 
+// O(n^2)
+// Space O(n)
+/**
+ * Definition for an interval.
+ * struct Interval {
+ *     int start;
+ *     int end;
+ *     Interval() : start(0), end(0) {}
+ *     Interval(int s, int e) : start(s), end(e) {}
+ * };
+ */
+class Solution {
+public:
+    vector<Interval> merge(vector<Interval> &intervals) {
+        vector<Interval> res;
+        sort(intervals.begin(), intervals.end(), Solution::cmp);
+        list<Interval> l;
+        l.assign(intervals.begin(), intervals.end());
+        for (int i = 0; i < intervals.size(); ++i) {
+            insert(l, intervals[i]);
+        }
+        res.assign(l.begin(), l.end());
+        return res;
+    }
+    static bool cmp(Interval lhs, Interval rhs) {
+        return lhs.start < rhs.start;
+    }
+private:
+    void insert(list<Interval> &l, Interval interval) {
+        list<Interval>::iterator iter = l.begin();
+        while (iter != l.end()) {
+            if (interval.end < iter->start) {
+                l.insert(iter, interval);
+                return;
+            } else if (interval.start > iter->end) {
+                iter++;
+            } else {
+                interval.start = min(interval.start, iter->start);
+                interval.end = max(interval.end, iter->end);
+                iter = l.erase(iter);
+            }
+        }
+        l.push_back(interval);
+    }
+};
+
 
 // InsertionSortList.cpp
 /**
@@ -1895,6 +2031,30 @@ public:
             return dp[s1.length()][s2.length()];
         }
         return s1.length() == 0 && s2.length() == 0 && s3.length() == 0;
+    }
+};
+
+// alternative
+class Solution {
+public:
+    bool isInterleave(string s1, string s2, string s3) {
+        if (s1.length() + s2.length() == s3.length()) {
+            vector<vector<int> > dp(s1.length() + 1, vector<int>(s2.length() + 1));
+            dp[0][0] = 1;
+            for (int i = 1; i < s1.length() + 1; ++i) {
+                dp[i][0] = s1[i - 1] == s3[i - 1];
+            }
+            for (int i = 1; i < s2.length() + 1; ++i) {
+                dp[0][i] = s2[i - 1] == s3[i - 1];
+            }
+            for (int i = 1; i < s1.length() + 1; ++i) {
+                for (int j = 1; j < s2.length() + 1; ++j) {
+                    dp[i][j] = (s1[i - 1] == s3[i + j - 1] && dp[i - 1][j]) || (s2[j - 1] == s3[i + j - 1] && dp[i][j - 1]);
+                }
+            }
+            return dp[s1.length()][s2.length()];
+        }
+        return false;
     }
 };
 
@@ -2508,6 +2668,27 @@ private:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        int start = 0, end = 0, res = 0;
+        int dict[255] = { 0 };
+        while (start < s.length() && end < s.length()) {
+            if (dict[s[end]] == 0) {
+                dict[s[end]] = 1;
+                res = max(res, end - start + 1);
+                end++;
+            } else {
+                dict[s[start]] = 0;
+                res = max(res, end - start);
+                start++;
+            }
+        }
+        return res;
+    }
+};
+
 
 // LongestValidParentheses.cpp
 class Solution {
@@ -2538,6 +2719,37 @@ public:
             return len;
         }
         return 0;
+    }
+};
+
+// alternative
+class Solution {
+public:
+    int longestValidParentheses(string s) {
+        stack<int> stk;
+        int res = 0;
+        for (int i = 0; i < s.length(); ++i) {
+            if (s[i] == '(') {
+                stk.push(i);
+            } else if (s[i] == ')') {
+                if (!stk.empty()) {
+                    int p = stk.top();
+                    if (s[p] == '(') {
+                        stk.pop();
+                    } else {
+                        stk.push(i);
+                    }
+                    if (stk.empty()) {
+                        res = max(res, i + 1);
+                    } else {
+                        res = max(res, i - stk.top());
+                    }
+                } else {
+                    stk.push(i);
+                }
+            }
+        }
+        return res;
     }
 };
 
@@ -2636,6 +2848,109 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int maximalRectangle(vector<vector<char> > &matrix) {
+        int row = matrix.size();
+        if (row == 0) {
+            return 0;
+        }
+        int col = matrix[0].size();
+        vector<vector<int> > m(row, vector<int>(col));
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                if (matrix[i][j] == '0') {
+                    m[i][j] = 0;
+                } else {
+                    if (i - 1 >= 0) {
+                        m[i][j] = m[i - 1][j] + 1;
+                    } else {
+                        m[i][j] = 1;
+                    }
+                }
+            }
+        }
+        int res = 0;
+        for (int i = 0; i < row; ++i) {
+            res = max(largestRectangleArea(m[i]), res);
+        }
+        return res;
+    }
+private:
+    int largestRectangleArea(vector<int> &height) {
+        if (height.size() > 0) {
+            height.push_back(0);
+            stack<int> stk;
+            int i = 0, res = 0;
+            while (i < height.size()) {
+                if (stk.empty() || height[i] > height[stk.top()]) {
+                    stk.push(i);
+                    i++;
+                } else {
+                    int index = stk.top();
+                    stk.pop();
+                    int width = stk.empty() ? i : i - stk.top() - 1;
+                    res = max(res, height[index] * width);
+                }
+            }
+            return res;
+        }
+        return 0;
+    }
+};
+
+// alternative
+class Solution {
+public:
+    int maximalRectangle(vector<vector<char> > &matrix) {
+        int row = matrix.size();
+        if (row == 0) {
+            return 0;
+        }
+        int col = matrix[0].size();
+        int res = 0;
+        vector<vector<int> > m(row, vector<int>(col));
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                if (matrix[i][j] == '0') {
+                    m[i][j] = 0;
+                } else {
+                    if (i > 0) {
+                        m[i][j] = m[i - 1][j] + 1;
+                    } else {
+                        m[i][j] = 1;
+                    }
+                }
+            }
+            res = max(res, largestRectangle(m[i]));
+        }
+        return res;
+    }
+private:
+    int largestRectangle(vector<int> &height) {
+        height.push_back(0);
+        stack<int> stk;
+        int res = 0, i = 0;
+        while (i < height.size()) {
+            if (stk.empty() || height[stk.top()] < height[i]) {
+                stk.push(i);
+                i++;
+            } else {
+                int index = stk.top();
+                stk.pop();
+                if (stk.empty()) {
+                    res = max(res, height[index] * i);
+                } else {
+                    res = max(res, height[index] * (i - stk.top() - 1));
+                }
+            }
+        }
+        height.pop_back();
+        return res;
+    }
+};
+
 
 // MaximumDepthofBinaryTree.cpp
 /**
@@ -2677,6 +2992,28 @@ private:
             return 1 + max(depth(root->left), depth(root->right));
         }
         return 0;
+    }
+};
+
+
+// MaximumProductSubarray.cpp
+class Solution {
+public:
+    int maxProduct(int A[], int n) {
+        if (n < 1) {
+            return 0;
+        }
+        int maxProd, minProd, res;
+        maxProd = minProd = res = A[0];
+        for (int i = 1; i < n; ++i) {
+            int maxCur = maxProd * A[i];
+            int minCur = minProd * A[i];
+            int cur = A[i];
+            maxProd = max(max(maxCur, minCur), cur);
+            minProd = min(min(maxCur, minCur), cur);
+            res = max(res, maxProd);
+        }
+        return res;
     }
 };
 
@@ -3103,6 +3440,85 @@ public:
             return "";
         }
         return S.substr(minStart, minLength);
+    }
+};
+
+// alternative
+class Solution {
+public:
+    string minWindow(string S, string T) {
+        if (S.length() == 0 || T.length() == 0 || T.length() > S.length()) {
+            return "";
+        }
+        unordered_map<char, int> dict;
+        for (int i = 0; i < T.length(); ++i) {
+            dict[T[i]] += 1;
+        }
+        int start = 0, end = 0, count = 0, minStart = -1, minWidth = INT_MAX;
+        unordered_map<char, int> curDict;
+        while (end < S.length()) {
+            if (dict.find(S[end]) != dict.end()) {
+                curDict[S[end]] += 1;
+                if (curDict[S[end]] <= dict[S[end]]) {
+                    count++;
+                }
+            }
+            if (count == T.length()) {
+                while (start < end && dict.find(S[start]) == dict.end() || curDict[S[start]] > dict[S[start]]) {
+                    if (dict.find(S[start]) != dict.end()) {
+                        curDict[S[start]]--;
+                    }
+                    start++;
+                }
+                if (minWidth > (end - start + 1)) {
+                    minWidth = end - start + 1;
+                    minStart = start;
+                }
+            }
+            end++;
+        }
+        if (minStart == -1) {
+            return "";
+        }
+        return S.substr(minStart, minWidth);
+    }
+};
+
+// alternative
+class Solution {
+public:
+    string minWindow(string S, string T) {
+        int dict[255] = { 0 };
+        for (int i = 0; i < T.length(); ++i) {
+            dict[T[i]] += 1;
+        }
+        int minStart = 0, minEnd = INT_MAX, start = 0, end = 0, num = 0;
+        int m[255] = { 0 };
+        while (end < S.length()) {
+            if (dict[S[end]] > 0) {
+                m[S[end]]++;
+                if (m[S[end]] <= dict[S[end]]) {
+                    num++;
+                }
+            }
+            if (num == T.length()) {
+                while (start < end && (m[S[start]] > dict[S[start]] || dict[S[start]] == 0)) {
+                    if (dict[S[start]] > 0) {
+                        m[S[start]]--;
+                    }
+                    start++;
+                }
+                if (minEnd - minStart > end - start) {
+                    minStart = start;
+                    minEnd = end;
+                }
+            }
+            end++;
+        }
+        if (minEnd == INT_MAX) {
+            return "";
+        }
+        return S.substr(minStart, minEnd - minStart + 1);
     }
 };
 
@@ -3540,7 +3956,52 @@ public:
                 n--;
             }
         }
-        return head->next;  //the 1st node is elmininated 
+        return head->next;  //the 1st node is elmininated
+    }
+};
+
+// alternative
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *partition(ListNode *head, int x) {
+        ListNode dummy(-1);
+        dummy.next = head;
+        ListNode *cur = head, *prev = &dummy;
+        while (cur && cur->next) {
+            if (cur->val >= x) {
+                break;
+            } else {
+                prev = cur;
+                cur = cur->next;
+            }
+        }
+        ListNode *node = cur;
+        if (cur) {
+            cur = cur->next;
+        }
+        while (cur) {
+            if (cur->val < x) {
+                ListNode *tmp1 = cur->next;
+                ListNode *tmp2 = prev->next;
+                prev->next = cur;
+                cur->next = tmp2;
+                prev = cur;
+                node->next = tmp1;
+                cur = tmp1;
+            } else {
+                cur = cur->next;
+                node = node->next;
+            }
+        }
+        return dummy.next;
     }
 };
 
@@ -3774,6 +4235,34 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    string getPermutation(int n, int k) {
+        string res, candidate;
+        for (int i = 1; i < n + 1; ++i) {
+            candidate.push_back(i + '0');
+        }
+        int total = factorial(n);
+        for (int i = 0; i < n; ++i) {
+            total /= (n - i);
+            int index = (k - 1) / total;
+            res.push_back(candidate[index]);
+            candidate.erase(index, 1);
+            k -= index * total;
+        }
+        return res;
+    }
+private:
+    int factorial(int n) {
+        int res = 1;
+        for (int i = 2; i < n + 1; ++i) {
+            res *= i;
+        }
+        return res;
+    }
+};
+
 
 // Permutations.cpp
 class Solution {
@@ -3788,6 +4277,28 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    vector<vector<int> > permute(vector<int> &num) {
+        permute(num, 0);
+        return res;
+    }
+private:
+    vector<vector<int> > res;
+    void permute(vector<int> &num, int index) {
+        if (index == num.size()) {
+            res.push_back(num);
+            return;
+        }
+        for (int i = index; i < num.size(); ++i) {
+            swap(num[i], num[index]);
+            permute(num, index + 1);
+            swap(num[i], num[index]);
+        }
+    }
+};
+
 
 // PermutationsII.cpp
 class Solution {
@@ -3799,6 +4310,29 @@ public:
             res.push_back(num);
         } while(next_permutation(num.begin(), num.end()));
         return res;
+    }
+};
+
+//alternative
+class Solution {
+public:
+    vector<vector<int> > permuteUnique(vector<int> &num) {
+        permute(num, 0);
+        vector<vector<int> > res;
+        res.assign(s.begin(), s.end());
+        return res;
+    }
+private:
+    set<vector<int> > s;
+    void permute(vector<int> &num, int index) {
+        if (index == num.size()) {
+            s.insert(num);
+        }
+        for (int i = index; i < num.size(); ++i) {
+            swap(num[index], num[i]);
+            permute(num, index + 1);
+            swap(num[index], num[i]);
+        }
     }
 };
 
@@ -4583,6 +5117,43 @@ public:
     }
 };
 
+// alternative
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *reverseBetween(ListNode *head, int m, int n) {
+        if (head) {
+            ListNode dummy(-1);
+            dummy.next = head;
+            ListNode *cur = &dummy, *prev = NULL;
+            int k = n - m;
+            if (k == 0) {
+                return dummy.next;
+            }
+            while (m--) {
+                prev = cur;
+                cur = cur->next;
+            }
+            while (k--) {
+                ListNode *tmp1 = prev->next;
+                ListNode *tmp2 = cur->next;
+                prev->next = cur->next;
+                cur->next = tmp2->next;
+                tmp2->next = tmp1;
+            }
+            return dummy.next;
+        }
+        return NULL;
+    }
+};
+
 
 // ReverseNodesInK-Group.cpp
 /**
@@ -4626,6 +5197,83 @@ public:
             }
         }
         return head->next;
+    }
+};
+
+// alternative
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *reverseKGroup(ListNode *head, int k) {
+        if (!head) return head;
+        ListNode dummy(0), *pos = &dummy;
+        dummy.next = head;
+        while (pos) {
+            int copy_k = k;
+            ListNode *cur = pos;
+            while (copy_k-- && cur) {
+                cur = cur->next;
+            }
+            if (!cur) {
+                break;
+            }
+            copy_k = k;
+            cur = pos->next;
+            while (--copy_k) {
+                ListNode *tmp = cur->next;
+                cur->next = tmp->next;
+                tmp->next = pos->next;
+                pos->next = tmp;
+            }
+            pos = cur;
+        }
+        return dummy.next;
+    }
+};
+
+// alternative
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *reverseKGroup(ListNode *head, int k) {
+        ListNode dummy(-1);
+        dummy.next = head;
+        ListNode *cur = head, *prev = &dummy;
+        while (cur) {
+            ListNode *cur = prev->next;
+            int copy = k;
+            while (--copy && cur) {
+                cur = cur->next;
+            }
+            if (!cur) {
+                break;
+            }
+            copy = k;
+            cur = prev->next;
+            while (--copy) {
+                ListNode *tmp1 = cur->next;
+                ListNode *tmp2 = prev->next;
+                prev->next = tmp1;
+                cur->next = tmp1->next;
+                tmp1->next = tmp2;
+            }
+            prev = cur;
+        }
+        return dummy.next;
     }
 };
 
@@ -4907,6 +5555,54 @@ public:
             res[1] = low - 1;
         }
         return res;
+    }
+};
+
+// alternative O(logn) solution
+class Solution {
+public:
+    vector<int> searchRange(int A[], int n, int target) {
+        vector<int> res = {-1, -1};
+        if (A) {
+            res[0] = findLeft(A, 0, n - 1, target);
+            res[1] = findRight(A, n, 0, n - 1, target);
+        }
+        return res;
+    }
+private:
+    int findLeft(int array[], int left, int right, int target) {
+        if (left > right) {
+            return -1;
+        }
+        int mid = (left + right) / 2;
+        if (array[mid] == target) {
+            if (mid > 0 && array[mid - 1] == target) {
+                return findLeft(array, 0, mid - 1, target);
+            } else {
+                return mid;
+            }
+        } else if (array[mid] > target) {
+            return findLeft(array, left, mid - 1, target);
+        } else {
+            return findLeft(array, mid + 1, right, target);
+        }
+    }
+    int findRight(int array[], int n, int left, int right, int target) {
+        if (left > right) {
+            return -1;
+        }
+        int mid = (left + right) / 2;
+        if (array[mid] == target) {
+            if (mid < n - 1 && array[mid + 1] == target) {
+                return findRight(array, n, mid + 1, right, target);
+            } else {
+                return mid;
+            }
+        } else if (array[mid] > target) {
+            return findRight(array, n, left, mid - 1, target);
+        } else {
+            return findRight(array, n, mid + 1, right, target);
+        }
     }
 };
 
@@ -5559,6 +6255,71 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    vector<int> findSubstring(string S, vector<string> &L) {
+        unordered_map<string, int> dict;
+        for (int i = 0; i < L.size(); ++i) {
+            dict[L[i]] += 1;
+        }
+        vector<int> res;
+        int len = L[0].length();
+        for (int i = 0; i < S.length() - L.size() * len + 1; ++i) {
+            unordered_map<string, int> d;
+            int j = 0;
+            for (; j < L.size(); ++j) {
+                string sub = S.substr(i + j * len, len);
+                if (dict.find(sub) != dict.end()) {
+                    d[sub] += 1;
+                    if (d[sub] > dict[sub]) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+            if (j == L.size()) {
+                res.push_back(i);
+            }
+        }
+        return res;
+    }
+};
+
+// alternative
+class Solution {
+public:
+    vector<int> findSubstring(string S, vector<string> &L) {
+        unordered_map<string, int> dict;
+        for (int i = 0; i < L.size(); ++i) {
+            dict[L[i]] += 1;
+        }
+        int size = L.size();
+        int len = L[0].length();
+        vector<int> res;
+        for (int i = 0; i < S.length() - len * size + 1; ++i) {
+            unordered_map<string, int> d = dict;
+            for (int j = i; j < S.length(); j += len) {
+                string sub = S.substr(j, len);
+                if (dict.find(sub) != dict.end()) {
+                    d[sub] -= 1;
+                    if (d[sub] == 0) {
+                        d.erase(sub);
+                    }
+                } else {
+                    break;
+                }
+                if (d.size() == 0) {
+                    res.push_back(i);
+                    break;
+                }
+            }
+        }
+        return res;
+    }
+};
+
 
 // SudokuSolver.cpp
 class Solution {
@@ -5922,6 +6683,55 @@ private:
         if (n < 1 || i > n - 1) return;
         int spaces = is_last ? 1 : (L / n + (i < (L % n) ? 1 : 0));
         s.append(spaces, ' ');
+    }
+};
+
+// alternative
+class Solution {
+public:
+    vector<string> fullJustify(vector<string> &words, int L) {
+        vector<string>res;
+        int len = words.size(), i = 0;
+        while(i < len) {
+            int rowlen = 0, j = i;
+            while(j < len && rowlen + words[j].size() <= L)
+                rowlen += (words[j++].size() + 1);
+            //j-i是该行放入单词的数目
+            if(j - i == 1) {//处理放入一个单词的特殊情况
+                res.push_back(words[i]);
+                addSpace(res.back(), L - words[i].size());
+                i = j;
+                continue;
+            }
+            //charaLen是当前行字母总长度
+            int charaLen = rowlen - (j - i);
+            //平均每个单词后的空格,j < len 表示不是最后一行
+            int meanSpace = j < len ? (L - charaLen) / (j - i - 1) : 1;
+            //多余的空格
+            int leftSpace = j < len ? (L - charaLen) % (j - i - 1) : L - charaLen - (j - i -1);
+            string tmp;
+            for(int k = i; k < j - 1; k++) {
+                tmp += words[k];
+                addSpace(tmp, meanSpace);
+                if(j < len && leftSpace > 0) {
+                    tmp.push_back(' ');
+                    leftSpace--;
+                }
+            }
+            tmp += words[j - 1];//放入最后一个单词
+            if(leftSpace > 0) {
+                addSpace(tmp, leftSpace); //对最后一行
+            }
+            res.push_back(tmp);
+            i = j;
+        }
+        return res;
+    }
+private:
+    void addSpace(string &s, int count) {
+        for(int i = 1; i <= count; i++) {
+            s.push_back(' ');
+        }
     }
 };
 
@@ -6346,6 +7156,34 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    bool isValid(string s) {
+        stack<char> stk;
+        unordered_map<char, char> dict;
+        dict[')'] = '(', dict[']'] = '[', dict['}'] = '{';
+        for (int i = 0; i < s.length(); ++i) {
+            char ch = s[i];
+            if (ch == '(' || ch == '[' || ch == '{') {
+                stk.push(ch);
+            } else {
+                if (!stk.empty()) {
+                    char p = stk.top();
+                    if (dict[ch] == p) {
+                        stk.pop();
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        return stk.empty();
+    }
+};
+
 
 // ValidSudoku.cpp
 class Solution {
@@ -6694,39 +7532,20 @@ private:
 class Solution {
 public:
     string convert(string s, int nRows) {
-        if (nRows > 1) {
-            vector<string> m(nRows);
-            int i = 0, row = 0;
-            bool isZigzag = false;
-            while(i < s.length()) {
-                if (row < nRows && !isZigzag) {
-                    m[row] += s[i];
-                    row++;
-                    i++;
-                } else {
-                    if (!isZigzag) {
-                        isZigzag = true;
-                        row--;
-                    } else {
-                        row--;
-                        m[row] += s[i];
-                        i++;
-                        if (row == 0) {
-                            isZigzag = false;
-                            row++;
-                        }
-                    }
-                }
-            }
-            string res;
-            for (int i = 0; i < m.size(); ++i) {
-                for (int j = 0; j < m[i].length(); ++j) {
-                    res += m[i][j];
-                }
-            }
-            return res;
+        if (s.length() == 0 || nRows < 2) {
+            return s;
         }
-        return s;
+        string res;
+        int size = nRows * 2 - 2;
+        for (int i = 0; i < nRows; ++i) {
+            for (int j = i; j < s.length(); j += size) {
+                res.push_back(s[j]);
+                if (i != 0 && i != nRows - 1 && j + size - 2 * i < s.length()) {
+                    res.push_back(s[j + size - 2 * i]);
+                }
+            }
+        }
+        return res;
     }
 };
 
