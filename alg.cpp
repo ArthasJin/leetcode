@@ -56,6 +56,48 @@ TreeNode *arrayToTree(vector<int> &array, int i) {
 }
 
 
+// CommonCharacters.cpp
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+int commonCharacters(vector<string> &strs) {
+    if (strs.size() == 0 || strs.size() == 1) {
+        return 0;
+    }
+    int dict[255] = { 0 };
+    int charSet[255] = { 0 };
+    int res = 0;
+    for (int i = 0; i < strs[0].length(); ++i) {
+        dict[strs[0][i]] += 1;
+    }
+    for (int i = 1; i < strs.size(); ++i) {
+        for (int j = 0; j < strs[i].length(); ++j) {
+            if (dict[strs[i][j]] > 0) {
+                charSet[strs[i][j]] += 1;
+            }
+        }
+    }
+    for (int i = 0; i < 256; ++i) {
+        if (charSet[i] == strs.size()) {
+            res++;
+        }
+    }
+    return res;
+}
+
+int main() {
+    vector<string> strs;
+    strs.push_back("aghkafgklt");
+    strs.push_back("dfghako");
+    strs.push_back("qwemnaarkf");
+    cout << commonCharacters(strs) << endl;
+    return 0;
+}
+
+
 // FindKthElementInArray.cpp
 #include <iostream>
 
@@ -192,6 +234,31 @@ bool isIsomorphic(std::string first, std::string second) {
         }
     }
     return true;
+}
+
+
+// LogBase2IntergralPart.cpp
+#include <iostream>
+
+using namespace std;
+
+int log2(int n) {
+    int res = 0;
+    while (n >>= 1) {
+        res++;
+    }
+    return res;
+}
+
+int main() {
+    cout << log2(1) << endl;
+    cout << log2(2) << endl;
+    cout << log2(4) << endl;
+    cout << log2(5) << endl;
+    cout << log2(6) << endl;
+    cout << log2(10) << endl;
+    cout << log2(100) << endl;
+    return 0;
 }
 
 
@@ -336,6 +403,8 @@ vector<int> merge_sort(vector<int>& vec) {
 }
 
 
+// MoreThanHalf.cpp
+
 // NumOfCommonChars.java
 public int getNumOfCommonChars(String[] inputs) {
     // Return 0 if null / empty input or only one string is provided
@@ -434,6 +503,46 @@ ListNode *reverse(ListNode *head) {
         cur = tmp;
     }
     return prev;
+}
+
+
+// SelfExcludeMultiply.cpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+vector<int> selfExcludeMultiply(vector<int> &input) {
+    int zero = 0, prod = 1;
+    vector<int> res(input.size());
+    for (int i = 0; i < input.size(); ++i) {
+        if (input[i] == 0) {
+            zero++;
+            if (zero == 2) {
+                return res;
+            }
+        } else {
+            prod *= input[i];
+        }
+    }
+    for (int i = 0; i < input.size(); ++i) {
+        if (input[i] == 0) {
+            res[i] = prod;
+        } else {
+            res[i] = prod / input[i];
+        }
+    }
+    return res;
+}
+
+int main() {
+    vector<int> input = { 1,2,0,4,5,0,7,8 };
+    vector<int> output = selfExcludeMultiply(input);
+    for (auto i : output) {
+        cout << i << " ";
+    }
+    cout << endl;
+    return 0;
 }
 
 

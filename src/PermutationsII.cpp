@@ -33,3 +33,35 @@ private:
     }
 };
 
+// more efficient
+class Solution {
+public:
+    vector<vector<int> > permuteUnique(vector<int> &num) {
+        permute(num, 0);
+        return res;
+    }
+private:
+    vector<vector<int> > res;
+    bool noswap(vector<int> &num, int index, int i) {
+        for (int j = index; j < i; ++j) {
+            if (num[i] == num[j]) {
+                return true;
+            }
+        }
+        return false;
+    }
+    void permute(vector<int> &num, int index) {
+        if (index == num.size()) {
+            res.push_back(num);
+            return;
+        }
+        for (int i = index; i < num.size(); ++i) {
+            if (!noswap(num, index, i)) {
+                swap(num[index], num[i]);
+                permute(num, index + 1);
+                swap(num[index], num[i]);
+            }
+        }
+    }
+};
+

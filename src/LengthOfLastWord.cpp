@@ -14,3 +14,25 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int lengthOfLastWord(const char *s) {
+        if (s) {
+            int len = strlen(s);
+            char *end = (char *) (s + len - 1);
+            while (end >= s && *end == ' ') {
+                end--;
+            }
+            if (end >= s) {
+                char *start = end;
+                while (start >= s && *start != ' ') {
+                    start--;
+                }
+                return end - start;
+            }
+        }
+        return 0;
+    }
+};
+
