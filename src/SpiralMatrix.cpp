@@ -78,3 +78,38 @@ public:
     }
 };
 
+// alternative space O(1)
+class Solution {
+public:
+    vector<int> spiralOrder(vector<vector<int> > &matrix) {
+        vector<int> res;
+        int row = matrix.size();
+        if (row == 0) {
+            return res;
+        }
+        int col = matrix[0].size();
+        int start = 0;
+        while(row > start * 2 && col > start * 2) {
+            int endRow = row - start;
+            int endCol = col - start;
+            for (int i = start; i < endCol; ++i) {
+                res.push_back(matrix[start][i]);
+            }
+            for (int i = start + 1; i < endRow; ++i) {
+                res.push_back(matrix[i][endCol - 1]);
+            }
+            for (int i = endCol - 2; i >= start && row > 1; --i) {
+                res.push_back(matrix[endRow - 1][i]);
+            }
+            for (int i = endRow - 2; i > start && col > 1; --i) {
+                res.push_back(matrix[i][start]);
+            }
+            start++;
+        }
+        if (row * col != res.size()) {
+            res.pop_back();
+        }
+        return res;
+    }
+};
+
