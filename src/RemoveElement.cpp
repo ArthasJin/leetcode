@@ -15,3 +15,20 @@ public:
     }
 };
 
+// more elegant solution
+class Solution {
+public:
+    int removeElement(int A[], int n, int elem) {
+        int end = n - 1, i = 0;
+        while (i < end + 1) {
+            if (A[i] == elem) {
+                swap(A[i], A[end]);
+                end--;
+            } else {
+                i++;
+            }
+        }
+        return i;
+    }
+};
+

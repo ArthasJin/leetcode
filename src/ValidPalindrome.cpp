@@ -26,3 +26,25 @@ public:
     }
 };
 
+// a little elegant
+class Solution {
+public:
+    bool isPalindrome(string s) {
+        int low = 0, high = s.length() - 1;
+        while (low < high) {
+            if (isalnum(s[low]) && isalnum(s[high])) {
+                if (tolower(s[low]) == tolower(s[high])) {
+                    low++, high--;
+                } else {
+                    return false;
+                }
+            } else if (!isalnum(s[low])) {
+                low++;
+            } else if (!isalnum(s[high])) {
+                high--;
+            }
+        }
+        return true;
+    }
+};
+

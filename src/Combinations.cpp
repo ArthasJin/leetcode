@@ -24,3 +24,26 @@ private:
     }
 };
 
+// alternative
+class Solution {
+public:
+    vector<vector<int> > combine(int n, int k) {
+        vector<int> entry;
+        combine(n, k, 0, entry);
+        return res;
+    }
+private:
+    vector<vector<int> > res;
+    void combine(int n, int k, int index, vector<int> &entry) {
+        if (entry.size() == k) {
+            res.push_back(entry);
+            return;
+        }
+        for (int i = index; i < n; ++i) {
+            entry.push_back(i + 1);
+            combine(n, k, i + 1, entry);
+            entry.pop_back();
+        }
+    }
+};
+
