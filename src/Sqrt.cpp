@@ -23,6 +23,28 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int sqrt(int x) {
+        if (x == 0) {
+            return 0;
+        }
+        long long low = 1, high = x / 2 + 1;
+        while (low + 1 < high) {
+            long long mid = low + (high - low) / 2;
+            if (mid * mid < x) {
+                low = mid;
+            } else if (mid * mid > x) {
+                high = mid;
+            } else {
+                return mid;
+            }
+        }
+        return low;
+    }
+};
+
 // Newton-Raphson method
 class Solution {
 public:
