@@ -38,3 +38,44 @@ public:
     }
 };
 
+// alternative
+class Solution {
+public:
+    int atoi(const char *str) {
+        if (str) {
+            while (*str != '\0' && *str == ' ') {
+                str++;
+            }
+            int sign = 1;
+            if (*str == '-') {
+                sign = -1;
+            }
+            if (*str == '+' || *str == '-') {
+                str++;
+            }
+            int res = 0;
+            while (*str != '\0' && isdigit(*str)) {
+                int n = *str - '0';
+                if (sign == 1) {
+                    if (res > INT_MAX / 10) {
+                        return INT_MAX;
+                    } else if (res == INT_MAX / 10 && n > INT_MAX % 10) {
+                        return INT_MAX;
+                    }
+                    res = res * 10 + n;
+                } else if (sign == -1) {
+                    if (-res < INT_MIN / 10) {
+                        return INT_MIN;
+                    } else if (-res == INT_MIN / 10 && -n < INT_MIN % 10) {
+                        return INT_MIN;
+                    }
+                    res = res * 10 + n;
+                }
+                str++;
+            }
+            return res * sign;
+        }
+        return 0;
+    }
+};
+
