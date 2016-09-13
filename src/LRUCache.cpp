@@ -29,7 +29,7 @@ public:
     }
 private:
     typedef struct CacheEntry {
-        public:
+    public:
         int key;
         int value;
         CacheEntry(int k, int v) :key(k), value(v) {}
@@ -44,6 +44,47 @@ private:
         mList.erase(mCache[key]);
         mList.push_front(entry);
         mCache[key] = mList.begin();
+    }
+};
+
+class LRUCache {
+private:
+    int mCapacity;
+    unordered_map<int, list<pair<int, int>>::iterator> mCache;
+    list<pair<int, int>> mList;
+
+    void update(int key, int value) {
+        auto it = mCache[key];
+        mList.erase(it);
+        mList.push_front(make_pair(key, value));
+        mCache[key] = mList.begin();
+    }
+public:
+    LRUCache(int capacity) : mCapacity(capacity) {
+
+    }
+
+    int get(int key) {
+        if (mCache.count(key)) {
+            update(key, mCache[key]->second);
+            return mCache[key]->second;
+        } else {
+            return -1;
+        }
+    }
+
+    void set(int key, int value) {
+        if (mCache.count(key)) {
+            update(key, value);
+        } else {
+            mList.push_front(make_pair(key, value));
+            mCache[key] = mList.begin();
+            if (mCache.size() > mCapacity) {
+                pair<int, int> last = mList.back();
+                mCache.erase(last.first);
+                mList.pop_back();
+            }
+        }
     }
 };
 
