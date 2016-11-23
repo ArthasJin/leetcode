@@ -87,3 +87,45 @@ public:
 // numArray.update(1, 10);
 // numArray.sumRange(1, 2);
 
+class NumArray {
+private:
+    vector<int> _nums;
+    vector<int> _tree;
+    void updateTree(int i, int val) {
+        i = i + 1;
+        while (i <= _nums.size()) {
+            _tree[i] += val;
+            i += i & (-i);
+        }
+    }
+    int getSum(int i) {
+        int sum = 0;
+        i = i + 1;
+        while (i > 0) {
+            sum += _tree[i];
+            i -= i & (-i);
+        }
+        return sum;
+    }
+public:
+    NumArray(vector<int> &nums)
+    : _nums(nums), _tree(vector<int>(nums.size() + 1)) {
+        for (int i = 0; i < nums.size(); ++i) {
+            updateTree(i, nums[i]);
+        }
+    }
+
+    void update(int i, int val) {
+        int diff = val - _nums[i];
+        updateTree(i, diff);
+        _nums[i] = val;
+    }
+
+    int sumRange(int i, int j) {
+        if (i == 0) {
+            return getSum(j);
+        }
+        return getSum(j) - getSum(i - 1);
+    }
+};
+
